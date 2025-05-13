@@ -35,8 +35,8 @@ export default function Home() {
         </Link>
       </div>
 
-      <div className="mt-8 flex gap-5">
-        <Card className="max-w-[250px]">
+      <div className="mt-8 flex flex-col lg:flex-row gap-5">
+        <Card className="lg:max-w-[250px]">
           <CardHeader>
             <Link href="https://sub-sunday.com" color="foreground">
               <h2 className="text-xl">sub-sunday.com</h2>
@@ -58,7 +58,7 @@ export default function Home() {
             </div>
           </CardBody>
         </Card>
-        <Card className="max-w-[250px]">
+        <Card className="lg:max-w-[250px]">
           <CardHeader>
             <Link href="https://github.com/fr0gtech/spoty-stalk" color="foreground">
               <h2 className="text-xl">spoty-stalk</h2>
