@@ -17,10 +17,11 @@ export default function Home() {
         <span className={title()}>media apps.</span>
         <div className={subtitle({ class: "mt-4" })}>
           Join:{" "}
+          <Link href="https://discord.gg/Z77fvgef">
           <Code>
-            <span className="hidden">google: caesar cypher</span>
-            uggcf://qvfpbeq.tt/nvagabjnllbhpyvpxgungzhpu
+           discord.gg/Z77fvgef
           </Code>
+          </Link>
         </div>
       </div>
 
