@@ -45,13 +45,13 @@ export default function Home() {
           <CardBody>
             Tracking votes for liriks subsunday
             <div className="px-3 mt-5">
-              <Link href="https://github.com/frogtech/subsunday-front" color="success">
+              <Link href="https://github.com/fr0gtech/subsunday-front" color="success">
                 <GithubIcon className="mr-3" />
                 <span>subsunday-front</span>
               </Link>
             </div>
             <div className="px-3 mt-2">
-              <Link href="https://github.com/frogtech/subsunday-back" color="warning">
+              <Link href="https://github.com/fr0gtech/subsunday-back" color="warning">
                 <GithubIcon className="mr-3" />
                 <span>subsunday-back</span>
               </Link>
@@ -60,7 +60,7 @@ export default function Home() {
         </Card>
         <Card className="max-w-[250px]">
           <CardHeader>
-            <Link href="https://sub-sunday.com" color="foreground">
+            <Link href="https://github.com/fr0gtech/spoty-stalk" color="foreground">
               <h2 className="text-xl">spoty-stalk</h2>
             </Link>
           </CardHeader>
@@ -68,7 +68,7 @@ export default function Home() {
             Stalk someones public spotify playlist and souncloud likes
 
             <div className="px-3 mt-5">
-              <Link href="https://github.com/frogtech/spoty-stalk" color="success">
+              <Link href="https://github.com/fr0gtech/spoty-stalk" color="success">
                 <GithubIcon className="mr-3" />
                 <span>spoty-stalk</span>
               </Link>
