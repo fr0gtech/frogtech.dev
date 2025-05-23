@@ -77,6 +77,24 @@ export default function Home() {
 
           </CardBody>
         </Card>
+        <Card className="lg:max-w-[250px]">
+          <CardHeader>
+            <Link href="https://vod.ing" color="foreground">
+              <h2 className="text-xl">vod.ing</h2>
+            </Link>
+          </CardHeader>
+          <CardBody>
+            next gen stream editing in the browser
+
+            <div className="px-3 mt-5">
+              <Link href="https://github.com/vodingdot" color="success">
+                <GithubIcon className="mr-3" />
+                <span>vodingdot</span>
+              </Link>
+            </div>
+
+          </CardBody>
+        </Card>
       </div>
       <div className="flex gap-2">
         <Card>
