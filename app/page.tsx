@@ -17,9 +17,9 @@ export default function Home() {
         <span className={title()}>media apps.</span>
         <div className={subtitle({ class: "mt-4" })}>
           Join:{" "}
-          <Link href="https://discord.gg/Z77fvgef">
+          <Link href="https://discord.gg/3FBcXGnG94">
           <Code>
-           discord.gg/Z77fvgef
+            discord.gg/3FBcXGnG94
           </Code>
           </Link>
         </div>
