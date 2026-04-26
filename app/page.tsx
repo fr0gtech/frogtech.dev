@@ -39,7 +39,7 @@ export default function Home() {
       <div className="mt-8 flex flex-col lg:flex-row gap-5">
         <Card className="lg:max-w-[250px]">
           <CardHeader>
-            <Link href="https://sub-sunday.com" color="foreground">
+            <Link href="https://windbender.io" color="foreground">
               <h2 className="text-xl">windbender.io</h2>
             </Link>
           </CardHeader>
