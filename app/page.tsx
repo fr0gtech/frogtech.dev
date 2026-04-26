@@ -18,9 +18,9 @@ export default function Home() {
         <div className={subtitle({ class: "mt-4" })}>
           Join:{" "}
           <Link href="https://discord.gg/3FBcXGnG94">
-          <Code>
-            discord.gg/3FBcXGnG94
-          </Code>
+            <Code>
+              discord.gg/3FBcXGnG94
+            </Code>
           </Link>
         </div>
       </div>
@@ -37,6 +37,22 @@ export default function Home() {
       </div>
 
       <div className="mt-8 flex flex-col lg:flex-row gap-5">
+        <Card className="lg:max-w-[250px]">
+          <CardHeader>
+            <Link href="https://sub-sunday.com" color="foreground">
+              <h2 className="text-xl">windbender.io</h2>
+            </Link>
+          </CardHeader>
+          <CardBody>
+            A physics based sailing webGPU online game.
+            <div className="px-0 mt-5">
+              <Link href="https://windbender.io" >
+                <span>windbender.io</span>
+              </Link>
+            </div>
+
+          </CardBody>
+        </Card>
         <Card className="lg:max-w-[250px]">
           <CardHeader>
             <Link href="https://sub-sunday.com" color="foreground">
