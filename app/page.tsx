@@ -10,37 +10,17 @@ import { GithubIcon } from "@/components/icons";
 export default function Home() {
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-      <div className="inline-block max-w-xl text-center justify-center font-mono">
-        <span className={title()}>Creating&nbsp;</span>
-        <span className={title({ color: "violet" })}>modern&nbsp;</span>
-        <br />
-        <span className={title()}>media apps.</span>
-        <div className={subtitle({ class: "mt-4" })}>
-          Join:{" "}
-          <Link href="https://discord.gg/3FBcXGnG94">
-            <Code>
-              discord.gg/3FBcXGnG94
-            </Code>
-          </Link>
-        </div>
-      </div>
 
-      <div className="flex gap-3">
-        <Link
-          isExternal
-          className={buttonStyles({ variant: "bordered", radius: "full" })}
-          href={siteConfig.links.github}
-        >
-          <GithubIcon size={20} />
-          GitHub
-        </Link>
-      </div>
-
-      <div className="mt-8 flex flex-col lg:flex-row gap-5">
-        <Card className="lg:max-w-[250px]">
+      <div className="mt-8 w-full flex items-center justify-center">
+        <Card className="bg-cyan-500/10 w-full max-w-3xl">
           <CardHeader>
             <Link href="https://windbender.io" color="foreground">
-              <h2 className="text-xl">windbender.io</h2>
+              <h2 className="text-xl font-extrabold">
+                windbender.io
+                <span className="text-xs ml-2 text-red-500">
+                  NEW
+                </span>
+              </h2>
             </Link>
           </CardHeader>
           <CardBody>
@@ -53,6 +33,8 @@ export default function Home() {
 
           </CardBody>
         </Card>
+      </div>
+      <div className="mt-1 flex flex-col lg:flex-row gap-5">
         <Card className="lg:max-w-[250px]">
           <CardHeader>
             <Link href="https://sub-sunday.com" color="foreground">
@@ -75,6 +57,43 @@ export default function Home() {
             </div>
           </CardBody>
         </Card>
+
+        <Card className="lg:max-w-[250px]">
+          <CardHeader>
+            <Link href="https://vod.ing" color="foreground">
+              <h2 className="text-xl">vod.ing</h2>
+            </Link>
+          </CardHeader>
+          <CardBody>
+            Next gen stream editing in the browser
+
+            <div className="px-3 mt-5">
+              <Link href="https://github.com/vodingdot" color="success">
+                <GithubIcon className="mr-3" />
+                <span>vodingdot</span>
+              </Link>
+            </div>
+
+          </CardBody>
+        </Card>
+        <Card className="lg:max-w-[250px]">
+          <CardHeader>
+            <Link href="fix-pink-youtube" color="foreground">
+              <h2 className="text-xl font-bold!">fix-pink-youtube</h2>
+            </Link>
+          </CardHeader>
+          <CardBody>
+            Fix the new red to pink gradient progress/scrubber bar in youtube
+
+            <div className="px-3 mt-5">
+              <Link href="https://github.com/greeb/fix-pink-youtube" color="success">
+                <GithubIcon className="mr-3" />
+                <span>fix-pink-youtube</span>
+              </Link>
+            </div>
+
+          </CardBody>
+        </Card>
         <Card className="lg:max-w-[250px]">
           <CardHeader>
             <Link href="https://github.com/fr0gtech/spoty-stalk" color="foreground">
@@ -93,26 +112,8 @@ export default function Home() {
 
           </CardBody>
         </Card>
-        <Card className="lg:max-w-[250px]">
-          <CardHeader>
-            <Link href="https://vod.ing" color="foreground">
-              <h2 className="text-xl">vod.ing</h2>
-            </Link>
-          </CardHeader>
-          <CardBody>
-            next gen stream editing in the browser
-
-            <div className="px-3 mt-5">
-              <Link href="https://github.com/vodingdot" color="success">
-                <GithubIcon className="mr-3" />
-                <span>vodingdot</span>
-              </Link>
-            </div>
-
-          </CardBody>
-        </Card>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-5">
         <Card>
           <CardHeader>
             <Link href="https://github.com/fr0gtech/twitch-vod-chat-downloader" color="secondary">
