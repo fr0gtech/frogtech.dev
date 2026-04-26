@@ -29,7 +29,7 @@ export default function FixPinkYoutube() {
         <Link
           isExternal
           className={buttonStyles({ variant: "bordered", radius: "full", color: "primary" })}
-          href="https://chromewebstore.google.com/detail/fix-pink-youtube"
+          href="https://chromewebstore.google.com/detail/fix-pink-youtube/fengeoelhgcghmjbjpnmaklomofhdanj"
         >
           🌐 Chrome
         </Link>
@@ -67,8 +67,8 @@ export default function FixPinkYoutube() {
               <h3 className="text-xl font-semibold">Player Progress Bar</h3>
             </CardHeader>
             <CardBody>
-              <img 
-                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-player.png" 
+              <img
+                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-player.png"
                 alt="Fixed player progress bar showing red color"
                 className="rounded-lg w-full"
               />
@@ -80,8 +80,8 @@ export default function FixPinkYoutube() {
               <h3 className="text-xl font-semibold">Thumbnail Progress Bar</h3>
             </CardHeader>
             <CardBody>
-              <img 
-                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-thumbnail.png" 
+              <img
+                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-thumbnail.png"
                 alt="Fixed thumbnail progress bar showing red color"
                 className="rounded-lg w-full"
               />
@@ -96,8 +96,8 @@ export default function FixPinkYoutube() {
           <CardBody>
             <p className="mb-4">
               To ensure authenticity, we use colors from a{" "}
-              <Link 
-                href="https://web.archive.org/web/20230705011417/https://www.youtube.com/" 
+              <Link
+                href="https://web.archive.org/web/20230705011417/https://www.youtube.com/"
                 isExternal
                 color="secondary"
               >
@@ -139,8 +139,8 @@ export default function FixPinkYoutube() {
               </ol>
             </div>
             <div className="mt-4">
-              <Link 
-                href="https://github.com/GREEB/fix-pink-youtube" 
+              <Link
+                href="https://github.com/GREEB/fix-pink-youtube"
                 isExternal
                 color="success"
               >
