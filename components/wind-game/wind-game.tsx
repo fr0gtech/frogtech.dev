@@ -742,7 +742,8 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
       >
         <div className="hidden text-[10px] leading-relaxed text-white/30 md:block [@media(max-height:520px)]:!hidden">
           1-{tools.length} tools · E rotate · V view
-          <br />R restart frog · right-click removes · esc exits
+          <br />R restart frog · right-click removes
+          {onExit && " · esc exits"}
         </div>
 
         <div className="flex flex-col items-center gap-2 md:col-start-2">
