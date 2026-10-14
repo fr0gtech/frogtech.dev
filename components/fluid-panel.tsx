@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import clsx from "clsx";
 
 import {
   DEFAULT_SETTINGS,
@@ -9,8 +10,6 @@ import {
 } from "@/components/fluid-settings";
 
 // Tuning panel for the hero sim. Shown in dev, or anywhere with ?tune.
-
-const STORAGE_KEY = "frogtech-fluid-settings";
 
 export function isTuning() {
   return (
@@ -74,18 +73,30 @@ const colors: [ColorKey, string][] = [
 export function FluidPanel({
   settings,
   onChange,
+  title = "tune fluid",
+  storageKey = "frogtech-fluid-settings",
+  defaults = DEFAULT_SETTINGS,
+  presets = true,
+  showLogoColors = false,
+  className = "absolute right-4 top-4",
 }: {
   settings: FluidSettings;
   onChange: (s: FluidSettings) => void;
+  title?: string;
+  storageKey?: string;
+  defaults?: FluidSettings;
+  presets?: boolean;
+  showLogoColors?: boolean;
+  className?: string;
 }) {
   const [open, setOpen] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(storageKey);
 
-      if (saved) onChange({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+      if (saved) onChange({ ...defaults, ...JSON.parse(saved) });
     } catch {}
   }, []);
 
@@ -94,7 +105,7 @@ export function FluidPanel({
 
     onChange(next);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
     } catch {}
   };
 
@@ -113,31 +124,39 @@ export function FluidPanel({
   return (
     <div
       data-fluid-panel
-      className="absolute right-4 top-4 z-30 max-h-[calc(100svh-2rem)] w-72 overflow-y-auto rounded-lg border border-white/10 bg-black/75 text-xs text-white/80 backdrop-blur"
+      className={clsx(
+        className,
+        "z-30 max-h-[calc(100svh-2rem)] w-72 overflow-y-auto rounded-lg border border-white/10 bg-black/75 text-xs text-white/80 backdrop-blur",
+      )}
     >
       <button
         className="flex w-full items-center justify-between px-3 py-2 font-bold text-white"
         onClick={() => setOpen(!open)}
       >
-        tune fluid <span>{open ? "−" : "+"}</span>
+        {title} <span>{open ? "−" : "+"}</span>
       </button>
 
       {open && (
         <div className="space-y-4 px-3 pb-3">
-          <div className="flex gap-1">
-            {(Object.keys(PRESETS) as (keyof typeof PRESETS)[]).map((p) => (
-              <button
-                key={p}
-                className="flex-1 rounded bg-white/10 px-2 py-1 hover:bg-white/20"
-                onClick={() => update(PRESETS[p])}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
+          {presets && (
+            <div className="flex gap-1">
+              {(Object.keys(PRESETS) as (keyof typeof PRESETS)[]).map((p) => (
+                <button
+                  key={p}
+                  className="flex-1 rounded bg-white/10 px-2 py-1 hover:bg-white/20"
+                  onClick={() => update(PRESETS[p])}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="space-y-1">
-            {toggles.map(([key, label]) => (
+            {(showLogoColors
+              ? [...toggles, ["logoColors", "use logo colors"] as const]
+              : toggles
+            ).map(([key, label]) => (
               <label key={key} className="flex items-center gap-2">
                 <input
                   checked={settings[key]}
@@ -200,7 +219,7 @@ export function FluidPanel({
             </button>
             <button
               className="rounded bg-white/10 px-2 py-1.5 hover:bg-white/20"
-              onClick={() => update(DEFAULT_SETTINGS)}
+              onClick={() => update(defaults)}
             >
               reset
             </button>

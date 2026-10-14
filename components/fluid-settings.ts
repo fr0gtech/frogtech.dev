@@ -16,6 +16,7 @@ export type FluidSettings = {
   colorSpread: number;
   background: string;
   scrollInertia: number;
+  logoColors: boolean;
 };
 
 export const PRESETS = {
@@ -37,6 +38,7 @@ export const PRESETS = {
     colorSpread: 9.7,
     background: "#000000",
     scrollInertia: 0.1,
+    logoColors: false,
   },
   smoke: {
     simRes: 128,
@@ -56,6 +58,7 @@ export const PRESETS = {
     colorSpread: 4,
     background: "#000000",
     scrollInertia: 0.4,
+    logoColors: false,
   },
   mask: {
     simRes: 128,
@@ -75,7 +78,18 @@ export const PRESETS = {
     colorSpread: 4,
     background: "#000000",
     scrollInertia: 0.4,
+    logoColors: false,
   },
 } satisfies Record<string, FluidSettings>;
 
 export const DEFAULT_SETTINGS: FluidSettings = PRESETS.pixel;
+
+// the little logo sims next to each project
+export const MINI_DEFAULTS: FluidSettings = {
+  ...DEFAULT_SETTINGS,
+  simRes: 80,
+  dyeRes: 41,
+  radius: 0.8,
+  force: 500,
+  logoColors: true,
+};
