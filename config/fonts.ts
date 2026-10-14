@@ -1,7 +1,7 @@
 import { IBM_Plex_Mono as FontMono, Inter as FontSans } from "next/font/google";
 
 export const fontSans = FontMono({
-  weight: "400",
+  weight: ["400", "700"],
   subsets: ["latin"],
   variable: "--font-sans",
 });
