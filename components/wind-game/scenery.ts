@@ -58,7 +58,7 @@ export function drawBackground(
   ctx.fillStyle = "#06110e";
   ctx.beginPath();
   ctx.moveTo(0, water);
-  for (let x = 0; x <= w; x += cell * 0.5) {
+  for (let x = 0; x <= w; x += Math.max(1, cell * 0.5)) {
     const t = x / w;
     const y =
       water -

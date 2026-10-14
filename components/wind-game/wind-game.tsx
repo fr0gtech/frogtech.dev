@@ -22,6 +22,7 @@ import {
   stepBody,
 } from "@/components/wind-game/frog-body";
 import { ToolIcon, View, ViewIcon } from "@/components/wind-game/icons";
+import { PondAudio } from "@/components/wind-game/sound";
 import {
   Result,
   loadBest,
@@ -68,6 +69,48 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
   const uiRef = useRef<HTMLCanvasElement>(null);
   const simRef = useRef<WindSim | null>(null);
   const bgRef = useRef<HTMLCanvasElement>(null);
+  const areaRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<PondAudio | null>(null);
+  const [muted, setMuted] = useState(false);
+
+  // sound: created up front, started by the first click/tap/key (browsers
+  // block audio until the player interacts)
+  useEffect(() => {
+    const audio = new PondAudio();
+
+    audioRef.current = audio;
+    setMuted(audio.muted);
+    const start = () => audio.start();
+
+    window.addEventListener("pointerdown", start);
+    window.addEventListener("keydown", start);
+
+    return () => {
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
+      audio.dispose();
+      audioRef.current = null;
+    };
+  }, []);
+  const [boardPx, setBoardPx] = useState(0);
+
+  // the biggest 16:9 board that fits the screen. Measured from the root, which
+  // nothing inside changes, so there's no resize feedback loop. An exact 16:9
+  // box also keeps planks lined up with the air they block.
+  useEffect(() => {
+    const el = areaRef.current;
+
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => {
+      const { width, height } = e.contentRect;
+
+      setBoardPx(Math.floor(Math.min(width, (height * COLS) / ROWS)));
+    });
+
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, []);
   const lookRef = useRef<GameLook | null>(null);
   const maskRef = useRef<HTMLCanvasElement>(null!);
   const staticRef = useRef<HTMLCanvasElement>(null!);
@@ -255,7 +298,10 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
 
       for (let i = 0; i < 3; i++)
         if (!stepBody(s.body, dt / 3, air, solidAt, canopyAir, overGoal)) {
-          if (s.body.y > ROWS / 2) s.splashes.push({ x: s.body.x, age: 0 });
+          if (s.body.y > ROWS / 2) {
+            s.splashes.push({ x: s.body.x, age: 0 });
+            audioRef.current?.splash();
+          }
           s.body = spawn(lv.start);
           break;
         }
@@ -273,6 +319,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
         );
         if (s.progress >= 1) {
           s.cleared = true;
+          audioRef.current?.clear();
           const r = scoreRun(
             s.build.walls.size + s.build.emitters.length,
             s.edits,
@@ -285,6 +332,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
         }
       }
       if (++frame % 6 === 0) {
+        audioRef.current?.wind(Math.hypot(air[0], air[1]));
         setProgress(s.progress);
         uiRef.current?.setAttribute(
           "data-frog",
@@ -294,7 +342,9 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
 
       const c = uiRef.current;
 
-      if (c) {
+      // nothing to draw until the board has been measured (a 0px cell would
+      // make the per-cell loops in the drawing code never finish)
+      if (c && c.clientWidth >= COLS) {
         const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         const w = Math.floor(c.clientWidth * dpr);
         const h = Math.floor(c.clientHeight * dpr);
@@ -395,9 +445,13 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
     const t = state.current.tool;
     let changed = false;
 
+    let sound: "place" | "remove" | "rotate" = "place";
+
     if (t === "smoke") return;
-    if (t === "erase") changed = removeAt(x, y);
-    else if (t === "wall") {
+    if (t === "erase") {
+      changed = removeAt(x, y);
+      sound = "remove";
+    } else if (t === "wall") {
       if (canPlace(level, b, x, y, "wall")) {
         // out of walls: the oldest one goes, the new one takes its place
         if (left(level, b, "wall") <= 0) {
@@ -411,13 +465,16 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
     } else if (first) {
       const mine = b.emitters.find((e) => e.x === x && e.y === y);
 
-      if (mine) changed = mine.kind === t && rotateAt(x, y);
-      else if (canPlace(level, b, x, y, t)) {
+      if (mine) {
+        changed = mine.kind === t && rotateAt(x, y);
+        sound = "rotate";
+      } else if (canPlace(level, b, x, y, t)) {
         b.emitters.push({ kind: t as EmitterKind, x, y, dir: 0 });
         changed = true;
       }
     }
     if (changed) {
+      audioRef.current?.[sound]();
       commit();
     }
   };
@@ -473,6 +530,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
     drag.current = { last: c, erase: e.button === 2 };
     if (e.button === 2) {
       if (removeAt(...c)) {
+        audioRef.current?.remove();
         commit();
       }
     } else applyAt(c[0], c[1], true);
@@ -494,6 +552,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
     for (const [x, y] of line(d.last, c)) {
       if (d.erase) {
         if (removeAt(x, y)) {
+          audioRef.current?.remove();
           commit();
         }
       } else applyAt(x, y, false);
@@ -529,6 +588,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
       else if (e.key === "r" || e.key === "R") restartFrog();
       else if ((e.key === "e" || e.key === "E") && state.current.hover) {
         if (rotateAt(...state.current.hover)) {
+          audioRef.current?.rotate();
           commit();
         }
       } else if (e.key === "Escape") onExit?.();
@@ -540,10 +600,9 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
   });
 
   const isLast = levelIndex === LEVELS.length - 1;
-  // --hud is the height the HUD around the board needs (less on short screens)
-  const boardWidth =
-    "min(calc(100vw - 2rem), calc((100svh - var(--hud)) * 16 / 9))";
-  const segments = 24;
+  const segments = 20;
+  const panel =
+    "rounded-lg border border-white/10 bg-black/45 backdrop-blur-sm";
 
   if (failed)
     return (
@@ -557,9 +616,38 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
       </div>
     );
 
+  const iconButton = (
+    label: string,
+    title: string,
+    onClick: () => void,
+    path: string,
+  ) => (
+    <button
+      aria-label={label}
+      className="flex h-9 w-9 items-center justify-center rounded-md text-white/50 transition-colors hover:bg-white/10 hover:text-white md:h-10 md:w-10"
+      title={title}
+      onClick={onClick}
+    >
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path d={path} />
+      </svg>
+    </button>
+  );
+
   return (
+    // full screen: the board is the biggest 16:9 area that fits, the HUD
+    // floats over it and only its buttons take clicks
     <div
-      className="absolute inset-0 flex select-none flex-col items-center justify-center gap-4 px-4 py-4 text-white [--hud:15rem] [@media(max-height:520px)]:gap-1.5 [@media(max-height:520px)]:py-1.5 [@media(max-height:520px)]:[--hud:6.5rem]"
+      ref={areaRef}
+      className="absolute inset-0 select-none overflow-hidden bg-[#050b0e] text-white"
       data-progress={progress.toFixed(3)}
     >
       {tuning && (
@@ -570,100 +658,11 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
           }}
         />
       )}
-      {/* ---------- top hud ---------- */}
-      <div
-        className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 md:grid md:grid-cols-[1fr_auto_1fr]"
-        style={{ width: boardWidth }}
-      >
-        <div className="flex min-w-0 flex-1 items-end gap-3">
-          <div className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-center leading-none">
-            <div className="text-[9px] tracking-[0.3em] text-white/40">LVL</div>
-            <div className="text-2xl font-bold tabular-nums">
-              {String(levelIndex + 1).padStart(2, "0")}
-            </div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-lg font-bold leading-tight">
-              {level.name}
-            </div>
-            <div className="truncate text-xs text-white/50 [@media(max-height:520px)]:hidden">
-              {level.hint}
-            </div>
-          </div>
-        </div>
-
-        <div className="order-last flex w-full items-center gap-3 md:order-none md:w-auto">
-          <div className="flex gap-[3px]">
-            {Array.from({ length: segments }, (_, i) => (
-              <div
-                key={i}
-                className={clsx(
-                  "h-3 w-1.5 rounded-[1px] transition-colors duration-200",
-                  i < Math.round(progress * segments)
-                    ? "bg-white"
-                    : "bg-white/10",
-                )}
-              />
-            ))}
-          </div>
-          <div className="w-12 text-right text-lg font-bold tabular-nums">
-            {Math.floor(progress * 100)}
-            <span className="text-xs text-white/40">%</span>
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center justify-end gap-2 md:gap-3">
-          <div className="flex gap-1">
-            {LEVELS.map((l, i) => {
-              const stars = best[i]?.stars ?? 0;
-
-              return (
-                <button
-                  key={l.name}
-                  aria-label={`level ${i + 1}`}
-                  className={clsx(
-                    "flex h-5 w-5 items-center justify-center rounded-[3px] border text-[9px] tabular-nums transition-colors",
-                    i === levelIndex
-                      ? "border-white bg-white text-black"
-                      : i <= unlocked
-                        ? "border-white/40 text-white/70 hover:bg-white/20"
-                        : "border-white/10 text-white/20",
-                  )}
-                  disabled={i > unlocked}
-                  title={`${i + 1}. ${l.name}${
-                    best[i]
-                      ? ` · best ${best[i].score} (${"★".repeat(stars)})`
-                      : ""
-                  }`}
-                  onClick={() => setLevelIndex(i)}
-                >
-                  {stars ? (
-                    <span className={i === levelIndex ? "" : "text-amber-200"}>
-                      {stars}★
-                    </span>
-                  ) : (
-                    i + 1
-                  )}
-                </button>
-              );
-            })}
-          </div>
-          {onExit && (
-            <button
-              className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/60 transition-colors hover:border-white/40 hover:text-white"
-              title="exit (esc)"
-              onClick={onExit}
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      </div>
 
       {/* ---------- board ---------- */}
       <div
-        className="relative overflow-hidden rounded-lg border border-white/10"
-        style={{ width: boardWidth, aspectRatio: `${COLS} / ${ROWS}` }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+        style={{ width: boardPx, height: (boardPx * ROWS) / COLS }}
       >
         <canvas ref={bgRef} className="absolute inset-0 h-full w-full" />
         <canvas ref={glRef} className="absolute inset-0 h-full w-full" />
@@ -680,8 +679,8 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
           }}
         />
         {cleared && (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/40">
-            <div className="text-4xl font-bold tracking-[0.2em] text-white md:text-6xl">
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/40">
+            <div className="text-4xl font-bold tracking-[0.2em] md:text-6xl">
               {isLast ? "ALL CLEAR" : "CLEARED"}
             </div>
             {result && (
@@ -701,7 +700,7 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
                 <div className="text-2xl font-bold tabular-nums">
                   {result.score}
                 </div>
-                <div className="text-xs text-white/50">
+                <div className="text-xs text-white/60">
                   {result.pieces} pieces · {result.edits} edits ·{" "}
                   {result.seconds}s
                   {best[levelIndex] &&
@@ -731,114 +730,108 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
         )}
       </div>
 
-      <div className="hidden text-[11px] text-white/40 portrait:block md:portrait:hidden">
-        tip: turn your phone sideways for a bigger pond
-      </div>
-
-      {/* ---------- hotbar ---------- */}
-      <div
-        className="flex flex-col items-center gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-end md:gap-3"
-        style={{ width: boardWidth }}
-      >
-        <div className="hidden text-[10px] leading-relaxed text-white/30 md:block [@media(max-height:520px)]:!hidden">
-          1-{tools.length} tools · E rotate · V view
-          <br />R restart frog · right-click removes
-          {onExit && " · esc exits"}
+      {/* ---------- hud ---------- */}
+      <div className="pointer-events-none absolute inset-0">
+        {/* level, top left */}
+        <div
+          className={clsx(
+            panel,
+            "pointer-events-auto absolute left-2 top-2 flex max-w-[34%] items-center gap-2.5 py-1.5 pl-1.5 pr-3 lg:max-w-[36%]",
+          )}
+        >
+          <div className="rounded-md bg-white/10 px-2 py-0.5 text-center leading-none">
+            <div className="text-[8px] tracking-[0.3em] text-white/50">LVL</div>
+            <div className="text-lg font-bold tabular-nums">
+              {String(levelIndex + 1).padStart(2, "0")}
+            </div>
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-bold leading-tight">
+              {level.name}
+            </div>
+            <div className="hidden truncate text-[11px] text-white/55 lg:block">
+              {level.hint}
+            </div>
+            {/* small screens have no room for the gauge, show the % here */}
+            <div className="text-[11px] tabular-nums text-white/55 lg:hidden">
+              {Math.floor(progress * 100)}%
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2 md:col-start-2">
-          <div className="text-xs [@media(max-height:520px)]:hidden">
-            <span className="font-bold">{TOOL_INFO[tool].name}</span>
-            <span className="text-white/40"> · {TOOL_INFO[tool].tip}</span>
+        {/* fill gauge, top centre */}
+        <div
+          className={clsx(
+            panel,
+            "absolute left-1/2 top-2 hidden -translate-x-1/2 items-center gap-2 px-3 py-2 lg:flex",
+          )}
+        >
+          <div className="flex gap-[3px]">
+            {Array.from({ length: segments }, (_, i) => (
+              <div
+                key={i}
+                className={clsx(
+                  "h-2.5 w-1.5 rounded-[1px] transition-colors duration-200",
+                  i < Math.round(progress * segments)
+                    ? "bg-white"
+                    : "bg-white/15",
+                )}
+              />
+            ))}
           </div>
-          <div className="flex gap-1.5 rounded-xl border border-white/10 bg-black/60 p-1.5 backdrop-blur">
-            {tools.map((t, i) => {
-              const count =
-                t === "erase" || t === "smoke" ? null : left(level, build, t);
-              const active = t === tool;
+          <div className="w-9 text-right text-sm font-bold tabular-nums">
+            {Math.floor(progress * 100)}
+            <span className="text-[10px] text-white/50">%</span>
+          </div>
+        </div>
+
+        {/* levels, views, exit: top right */}
+        <div className="pointer-events-auto absolute right-2 top-2 flex items-center gap-1.5">
+          <div className={clsx(panel, "flex gap-1 p-1")}>
+            {LEVELS.map((l, i) => {
+              const stars = best[i]?.stars ?? 0;
 
               return (
                 <button
-                  key={t}
-                  aria-label={t}
+                  key={l.name}
+                  aria-label={`level ${i + 1}`}
                   className={clsx(
-                    "relative flex h-12 w-12 items-center justify-center rounded-lg border-2 transition-all md:h-14 md:w-14",
-                    active
-                      ? "-translate-y-1 border-white bg-white/10 text-white"
-                      : "border-white/10 bg-white/5 text-white/70 hover:border-white/30 hover:text-white",
-                    count === 0 && t !== "wall" && !active && "opacity-40",
+                    "flex h-6 w-6 items-center justify-center rounded-[4px] text-[10px] tabular-nums transition-colors",
+                    i === levelIndex
+                      ? "bg-white text-black"
+                      : i <= unlocked
+                        ? "text-white/70 hover:bg-white/15"
+                        : "text-white/20",
                   )}
-                  onClick={() => setTool(t)}
+                  disabled={i > unlocked}
+                  title={`${i + 1}. ${l.name}${
+                    best[i]
+                      ? ` · best ${best[i].score} (${"★".repeat(stars)})`
+                      : ""
+                  }`}
+                  onClick={() => setLevelIndex(i)}
                 >
-                  <ToolIcon className="h-6 w-6 md:h-7 md:w-7" tool={t} />
-                  <span className="absolute left-1 top-0.5 text-[9px] text-white/40">
-                    {i + 1}
-                  </span>
-                  {count !== null && (
-                    <span
-                      className={clsx(
-                        "absolute -bottom-1.5 -right-1.5 min-w-5 rounded-full px-1 text-[10px] font-bold tabular-nums",
-                        count > 0
-                          ? "bg-white text-black"
-                          : "bg-red-500/80 text-white",
-                      )}
-                    >
-                      {count}
+                  {stars ? (
+                    <span className={i === levelIndex ? "" : "text-amber-200"}>
+                      {stars}★
                     </span>
+                  ) : (
+                    i + 1
                   )}
                 </button>
               );
             })}
-            <div className="mx-0.5 w-px bg-white/10" />
-            <button
-              aria-label="restart frog"
-              className="flex h-12 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/10 hover:text-white md:h-14 md:w-10"
-              title="restart frog (R)"
-              onClick={restartFrog}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M6 4v16M6 5h10l-2 3.5 2 3.5H6" />
-              </svg>
-            </button>
-            <button
-              aria-label="reset"
-              className="flex h-12 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/10 hover:text-white md:h-14 md:w-10"
-              title="reset level (clears what you built)"
-              onClick={loadLevel}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4" />
-              </svg>
-            </button>
           </div>
-        </div>
-
-        <div className="flex justify-center md:justify-end">
-          <div className="flex gap-1 rounded-lg border border-white/10 bg-black/60 p-1">
+          <div className={clsx(panel, "hidden gap-0.5 p-1 sm:flex")}>
             {VIEWS.map((v) => (
               <button
                 key={v}
                 aria-label={v}
                 className={clsx(
-                  "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+                  "flex h-6 w-6 items-center justify-center rounded-[4px] transition-colors",
                   v === view
-                    ? "bg-white/15 text-white"
-                    : "text-white/40 hover:text-white",
+                    ? "bg-white/20 text-white"
+                    : "text-white/45 hover:text-white",
                 )}
                 title={`${v} view (V)`}
                 onClick={() => setView(v)}
@@ -847,6 +840,128 @@ export function WindGame({ onExit }: { onExit?: () => void }) {
               </button>
             ))}
           </div>
+          <button
+            aria-label={muted ? "unmute" : "mute"}
+            className={clsx(
+              panel,
+              "flex h-8 w-8 items-center justify-center text-white/60 hover:text-white",
+            )}
+            title={muted ? "sound off" : "sound on"}
+            onClick={() => {
+              const m = !muted;
+
+              setMuted(m);
+              audioRef.current?.setMuted(m);
+            }}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M4 9h4l5-4v14l-5-4H4z" />
+              {muted ? (
+                <path d="M17 9l5 6M22 9l-5 6" />
+              ) : (
+                <path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 6a8.5 8.5 0 0 1 0 12" />
+              )}
+            </svg>
+          </button>
+          {onExit && (
+            <button
+              className={clsx(
+                panel,
+                "flex h-8 w-8 items-center justify-center text-xs text-white/60 hover:text-white",
+              )}
+              title="exit (esc)"
+              onClick={onExit}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* tools: vertical bar on the right edge */}
+        <div
+          className={clsx(
+            panel,
+            "pointer-events-auto absolute right-2 top-1/2 flex -translate-y-1/2 flex-col items-center gap-1.5 p-1.5",
+          )}
+        >
+          {tools.map((t, i) => {
+            const count =
+              t === "erase" || t === "smoke" ? null : left(level, build, t);
+            const active = t === tool;
+
+            return (
+              <button
+                key={t}
+                aria-label={t}
+                className={clsx(
+                  "relative flex h-10 w-10 items-center justify-center rounded-md border-2 transition-all md:h-12 md:w-12",
+                  active
+                    ? "-translate-x-1 border-white bg-white/15 text-white"
+                    : "border-white/10 bg-white/5 text-white/70 hover:border-white/30 hover:text-white",
+                  count === 0 && t !== "wall" && !active && "opacity-40",
+                )}
+                title={`${TOOL_INFO[t].name} (${i + 1}): ${TOOL_INFO[t].tip}`}
+                onClick={() => setTool(t)}
+              >
+                <ToolIcon className="h-5 w-5 md:h-6 md:w-6" tool={t} />
+                <span className="absolute left-1 top-0.5 hidden text-[8px] text-white/40 md:block">
+                  {i + 1}
+                </span>
+                {count !== null && (
+                  <span
+                    className={clsx(
+                      "absolute -bottom-1.5 -left-1.5 min-w-[18px] rounded-full px-1 text-[10px] font-bold tabular-nums",
+                      count > 0
+                        ? "bg-white text-black"
+                        : "bg-red-500/80 text-white",
+                    )}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <div className="my-0.5 h-px w-full bg-white/10" />
+          {iconButton(
+            "restart frog",
+            "restart frog (R)",
+            restartFrog,
+            "M6 4v16M6 5h10l-2 3.5 2 3.5H6",
+          )}
+          {iconButton(
+            "reset",
+            "reset level (clears what you built)",
+            loadLevel,
+            "M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4",
+          )}
+        </div>
+
+        {/* what the selected tool does + keys, bottom left */}
+        <div
+          className={clsx(
+            panel,
+            "absolute bottom-2 left-2 hidden max-w-[40%] px-3 py-1.5 text-[11px] md:block",
+          )}
+        >
+          <span className="font-bold">{TOOL_INFO[tool].name}</span>
+          <span className="text-white/55"> · {TOOL_INFO[tool].tip}</span>
+          <div className="text-[10px] text-white/35">
+            1-{tools.length} tools · E rotate · V view · R restart frog
+            {onExit && " · esc exits"}
+          </div>
+        </div>
+
+        <div className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 text-[11px] text-white/45 portrait:block md:portrait:hidden">
+          tip: turn your phone sideways for a bigger pond
         </div>
       </div>
     </div>

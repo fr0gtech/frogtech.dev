@@ -251,7 +251,7 @@ function drawWater(
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.moveTo(0, top + cell);
-  for (let x = 0; x <= w; x += cell / 4)
+  for (let x = 0; x <= w; x += Math.max(1, cell / 4))
     ctx.lineTo(
       x,
       top +

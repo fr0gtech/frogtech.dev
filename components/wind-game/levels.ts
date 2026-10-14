@@ -130,6 +130,61 @@ export const LEVELS: Level[] = [
     start: { x: 5, y: 15 },
     budget: { drain: 1, fan: 1, wall: 20 },
   }),
+  level({
+    name: "chimney",
+    hint: "a warm draft rises in the chimney. get the frog in, and out at the top.",
+    walls: [
+      { x: 12, y: 5, w: 1, h: 11 },
+      { x: 16, y: 5, w: 1, h: 11 },
+    ],
+    pads: [pad(3, 13, 3)],
+    goal: pad(26, 4, 3),
+    emitters: [{ kind: "inflow", x: 14, y: 15, dir: U, fixed: true }],
+    start: { x: 4, y: 12 },
+    budget: { fan: 1, wall: 16 },
+  }),
+  level({
+    name: "squeeze",
+    hint: "a fan blows back through the gap. a drain on the far side pulls harder.",
+    walls: [
+      { x: 14, y: 0, w: 2, h: 8 },
+      { x: 14, y: 11, w: 2, h: 6 },
+    ],
+    pads: [pad(4, 10, 3)],
+    goal: pad(26, 12, 3),
+    emitters: [
+      { kind: "inflow", x: 2, y: 9, dir: R, fixed: true },
+      { kind: "fan", x: 19, y: 9, dir: L, fixed: true },
+    ],
+    start: { x: 5, y: 9 },
+    budget: { drain: 1, wall: 12, fan: 1 },
+  }),
+  level({
+    name: "crosswinds",
+    hint: "two vents blow at each other. bend the collision into something useful.",
+    walls: [],
+    pads: [pad(14, 14, 4)],
+    goal: pad(25, 5, 3),
+    emitters: [
+      { kind: "inflow", x: 1, y: 12, dir: R, fixed: true },
+      { kind: "inflow", x: 30, y: 12, dir: L, fixed: true },
+    ],
+    start: { x: 15, y: 13 },
+    budget: { wall: 20, fan: 1 },
+  }),
+  level({
+    name: "long way home",
+    hint: "the lotus is far back on the other side. take the frog the long way round.",
+    walls: [
+      { x: 10, y: 8, w: 1, h: 9 },
+      { x: 20, y: 0, w: 1, h: 7 },
+    ],
+    pads: [pad(26, 14, 4)],
+    goal: pad(3, 6, 3),
+    emitters: [{ kind: "inflow", x: 30, y: 9, dir: L, fixed: true }],
+    start: { x: 27, y: 13 },
+    budget: { fan: 2, drain: 1, wall: 24 },
+  }),
 ];
 
 // fans, inflows and drains can't sit this close to the target
