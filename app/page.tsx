@@ -26,6 +26,11 @@ const projects: Project[] = [
     description: "Our Deadlock mods: HUD editor, 4:3 stretched fix and more",
   },
   {
+    name: "twitchdictionary.com",
+    href: "https://twitchdictionary.com",
+    description: "Every Twitch emote, defined by how chat really uses it",
+  },
+  {
     name: "sub-sunday.com",
     href: "https://sub-sunday.com",
     description: "Tracking votes for liriks subsunday",
