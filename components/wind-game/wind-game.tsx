@@ -63,7 +63,7 @@ const TOOL_INFO: Record<ToolOrErase, { name: string; tip: string }> = {
   smoke: { name: "smoke", tip: "hold to puff smoke and see the air · free" },
 };
 
-export function WindGame({ onExit }: { onExit: () => void }) {
+export function WindGame({ onExit }: { onExit?: () => void }) {
   const glRef = useRef<HTMLCanvasElement>(null);
   const uiRef = useRef<HTMLCanvasElement>(null);
   const simRef = useRef<WindSim | null>(null);
@@ -531,7 +531,7 @@ export function WindGame({ onExit }: { onExit: () => void }) {
         if (rotateAt(...state.current.hover)) {
           commit();
         }
-      } else if (e.key === "Escape") onExit();
+      } else if (e.key === "Escape") onExit?.();
     };
 
     window.addEventListener("keydown", onKey);
@@ -549,9 +549,11 @@ export function WindGame({ onExit }: { onExit: () => void }) {
     return (
       <div className="absolute inset-0 flex items-center justify-center text-white/60">
         your browser can&apos;t run the wind sim, sorry.
-        <button className="ml-4 underline" onClick={onExit}>
-          back
-        </button>
+        {onExit && (
+          <button className="ml-4 underline" onClick={onExit}>
+            back
+          </button>
+        )}
       </div>
     );
 
@@ -646,13 +648,15 @@ export function WindGame({ onExit }: { onExit: () => void }) {
               );
             })}
           </div>
-          <button
-            className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/60 transition-colors hover:border-white/40 hover:text-white"
-            title="exit (esc)"
-            onClick={onExit}
-          >
-            ✕
-          </button>
+          {onExit && (
+            <button
+              className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/60 transition-colors hover:border-white/40 hover:text-white"
+              title="exit (esc)"
+              onClick={onExit}
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
