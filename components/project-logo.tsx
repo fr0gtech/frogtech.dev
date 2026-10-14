@@ -3,6 +3,7 @@
 import { RefObject } from "react";
 
 import { FluidCanvas, MaskDrawer, fontReady } from "@/components/fluid-canvas";
+import { frogPath } from "@/components/icons";
 import { FluidSettings } from "@/components/fluid-settings";
 
 // Tiny version of the hero sim with a project's logo as the dye source. Each
@@ -131,6 +132,7 @@ const imageLogo = (src: string, threshold: number): Logo => {
 };
 
 export const LOGOS = {
+  frog: pathLogo([frogPath], { x: 0, y: 0, w: 286, h: 301 }, "#5cb54f"),
   vod: textLogo("v", "#8b5cf6"),
   twitchdictionary: pathLogo(
     [

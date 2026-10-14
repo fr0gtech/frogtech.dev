@@ -8,7 +8,8 @@ import clsx from "clsx";
 import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
-  const isHome = usePathname() === "/";
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   // on the home page the hero is the logo, so only show this once scrolled past it
   const [scrolled, setScrolled] = useState(false);
 
@@ -24,6 +25,9 @@ export const Navbar = () => {
   }, [isHome]);
 
   const visible = !isHome || scrolled;
+
+  // the game page is full-screen and has its own exit
+  if (pathname === "/pond") return null;
 
   return (
     <header

@@ -3,6 +3,14 @@ import { Project, ProjectList } from "@/components/project-row";
 
 const projects: Project[] = [
   {
+    name: "frog pond",
+    logo: "frog",
+    href: "/pond",
+    description:
+      "A tiny wind-physics game. Steer the air, get the frog to the lotus.",
+    isNew: true,
+  },
+  {
     name: "vod.ing",
     logo: "vod",
     href: "https://vod.ing",

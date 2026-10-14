@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 
 import { FluidCanvas, fontReady } from "@/components/fluid-canvas";
 import { FluidPanel, isTuning } from "@/components/fluid-panel";
@@ -69,6 +71,13 @@ export function FluidHero() {
   const [failed, setFailed] = useState(false);
   const [settings, setSettings] = useState<FluidSettings>(DEFAULT_SETTINGS);
   const [tuning, setTuning] = useState(false);
+  const router = useRouter();
+
+  // old links: frogtech.dev/?play goes to the game's own page
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("play"))
+      router.replace("/pond");
+  }, [router]);
 
   useEffect(() => setTuning(isTuning()), []);
 
@@ -97,6 +106,20 @@ export function FluidHero() {
           settings={settings}
           onFail={() => setFailed(true)}
         />
+      )}
+      {!failed && (
+        <NextLink
+          className="group absolute bottom-20 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/15 bg-black/40 py-1.5 pl-1.5 pr-5 text-xs text-white/70 backdrop-blur transition-all hover:border-white/50 hover:text-white"
+          href="/pond"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black transition-transform group-hover:scale-110">
+            ▶
+          </span>
+          <span>
+            <span className="font-bold uppercase tracking-[0.25em]">play</span>
+            <span className="text-white/40"> · a tiny wind-physics pond</span>
+          </span>
+        </NextLink>
       )}
       <a
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs tracking-[0.3em] uppercase text-white/40 hover:text-white/80 transition-colors"

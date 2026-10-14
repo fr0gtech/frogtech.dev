@@ -21,14 +21,22 @@ export default function FixPinkYoutube() {
       <div className="flex gap-3 mt-4">
         <Link
           isExternal
-          className={buttonStyles({ variant: "bordered", radius: "full", color: "danger" })}
+          className={buttonStyles({
+            variant: "bordered",
+            radius: "full",
+            color: "danger",
+          })}
           href="https://addons.mozilla.org/en-US/firefox/addon/fix-pink-youtube-progress/"
         >
           🦊 Firefox
         </Link>
         <Link
           isExternal
-          className={buttonStyles({ variant: "bordered", radius: "full", color: "primary" })}
+          className={buttonStyles({
+            variant: "bordered",
+            radius: "full",
+            color: "primary",
+          })}
           href="https://chromewebstore.google.com/detail/fix-pink-youtube/fengeoelhgcghmjbjpnmaklomofhdanj"
         >
           🌐 Chrome
@@ -56,7 +64,9 @@ export default function FixPinkYoutube() {
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li>Progress bar in the main video player</li>
               <li>Progress bar in video thumbnails</li>
-              <li>Other UI elements to match YouTube&apos;s pre-2023 red theme</li>
+              <li>
+                Other UI elements to match YouTube&apos;s pre-2023 red theme
+              </li>
             </ul>
           </CardBody>
         </Card>
@@ -68,9 +78,9 @@ export default function FixPinkYoutube() {
             </CardHeader>
             <CardBody>
               <img
-                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-player.png"
                 alt="Fixed player progress bar showing red color"
                 className="rounded-lg w-full"
+                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-player.png"
               />
             </CardBody>
           </Card>
@@ -81,9 +91,9 @@ export default function FixPinkYoutube() {
             </CardHeader>
             <CardBody>
               <img
-                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-thumbnail.png"
                 alt="Fixed thumbnail progress bar showing red color"
                 className="rounded-lg w-full"
+                src="https://raw.githubusercontent.com/GREEB/fix-pink-youtube/main/media/fix-thumbnail.png"
               />
             </CardBody>
           </Card>
@@ -97,13 +107,13 @@ export default function FixPinkYoutube() {
             <p className="mb-4">
               To ensure authenticity, we use colors from a{" "}
               <Link
-                href="https://web.archive.org/web/20230705011417/https://www.youtube.com/"
                 isExternal
                 color="secondary"
+                href="https://web.archive.org/web/20230705011417/https://www.youtube.com/"
               >
                 May 7, 2023 snapshot
-              </Link>
-              {" "}from archive.org
+              </Link>{" "}
+              from archive.org
             </p>
             <div className="bg-default-100 p-4 rounded-lg overflow-x-auto">
               <Code className="text-sm">
@@ -126,23 +136,36 @@ export default function FixPinkYoutube() {
               <h3 className="text-lg font-semibold mb-2">🛠 Build locally</h3>
               <ol className="list-decimal list-inside space-y-2 ml-4">
                 <li>Clone the repository</li>
-                <li>Run <Code>npm install</Code> to install dependencies</li>
-                <li>Run <Code>npm run build</Code></li>
+                <li>
+                  Run <Code>npm install</Code> to install dependencies
+                </li>
+                <li>
+                  Run <Code>npm run build</Code>
+                </li>
               </ol>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">🏃 Run the extension</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                🏃 Run the extension
+              </h3>
               <ol className="list-decimal list-inside space-y-2 ml-4">
-                <li>Run <Code>npm run watch</Code> to watch for changes</li>
-                <li>Run <Code>npm install --global web-ext</Code> (first time only)</li>
-                <li>Run <Code>web-ext run -t chromium</Code> in another terminal</li>
+                <li>
+                  Run <Code>npm run watch</Code> to watch for changes
+                </li>
+                <li>
+                  Run <Code>npm install --global web-ext</Code> (first time
+                  only)
+                </li>
+                <li>
+                  Run <Code>web-ext run -t chromium</Code> in another terminal
+                </li>
               </ol>
             </div>
             <div className="mt-4">
               <Link
-                href="https://github.com/GREEB/fix-pink-youtube"
                 isExternal
                 color="success"
+                href="https://github.com/GREEB/fix-pink-youtube"
               >
                 <GithubIcon className="mr-2" />
                 View on GitHub for full documentation

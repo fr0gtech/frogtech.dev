@@ -16,7 +16,7 @@ export type MaskDrawer = (
 
 const PRESSURE_ITERS = 20;
 
-const vert = `#version 300 es
+export const vert = `#version 300 es
 precision highp float;
 in vec2 aPos;
 uniform vec2 texel;
@@ -30,14 +30,14 @@ void main() {
   gl_Position = vec4(aPos, 0.0, 1.0);
 }`;
 
-const head = `#version 300 es
+export const head = `#version 300 es
 precision highp float;
 precision highp sampler2D;
 in vec2 vUv, vL, vR, vT, vB;
 out vec4 o;
 `;
 
-const frag = {
+export const frag = {
   splat: `${head}
 uniform sampler2D uTarget;
 uniform float aspect, radius;
