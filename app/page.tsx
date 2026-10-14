@@ -40,6 +40,13 @@ const projects: Project[] = [
     ],
   },
   {
+    name: "browse.games",
+    logo: "browsegames",
+    href: "https://browse.games",
+    description:
+      "A curated directory of free browser games. No accounts, no ads, no paid placement.",
+  },
+  {
     name: "fix-pink-youtube",
     href: "/fix-pink-youtube",
     description:

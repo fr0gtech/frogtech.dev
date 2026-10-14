@@ -143,6 +143,13 @@ export const LOGOS = {
     "#6fd3a5",
   ),
   subsunday: imageLogo("/logos/sub-sunday.png", 0.5),
+  browsegames: pathLogo(
+    [
+      "M120.611 234H177.611V177H234.611V291H63.6113L63.6113 5.99999L234.611 5.99999V120H177.611V63L120.611 63V120H177.611V177H120.611V234Z",
+    ],
+    { x: 63.6, y: 6, w: 171, h: 285 },
+    "#18aac0",
+  ),
   mods: imageLogo("/logos/mods.png", 0.3),
 } satisfies Record<string, Logo>;
 
